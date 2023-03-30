@@ -17,19 +17,26 @@ public class App {
         HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
         String body = response.body();
 
-        
         //Necessário procurar um parseador de JSON em Java, caso não queira ou possa usar regex
 
         JsonParser jsonParser = new JsonParser();
         List<Map<String, String>> listaDeFilmes = jsonParser.parse(body);
 
-
         for (Map<String,String> filme : listaDeFilmes) {
-            System.out.println("{" + '\n' + "Rank: "+ filme.get("rank") + '\n' 
-                + "title: " + filme.get("title") + '\n'
-                + "Rating: " + filme.get("imDbRating") + '\n'
-                + "Image: " + filme.get("image") + '\n' + "}");
-        }
+            Double rating = Double.parseDouble(filme.get("imDbRating")); 
+            int numeroEstrelas = rating.intValue();
+            System.out.println("{" + "\u001b[37m \u001b[44m Rank:  " + filme.get("rank")  + "\u001b[m" + '\n' 
+                + "\u001b[1m Title: \u001b[m" + filme.get("title") + '\n'
+                + "\u001b[1m Rating:\u001b[m" + filme.get("imDbRating") + '\n'
+                + "\u001b[1m Image: \u001b[m" + filme.get("image"));
+            for(int i = 1; i <= numeroEstrelas; i++){
+                //Digitar chcp65001 resolveu o problema das estrelas no Windows
+                System.out.print("⭐");
+            }
+            System.out.print("}");
+            System.out.print('\n');
+            
         }
     }
+}
 
