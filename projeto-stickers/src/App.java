@@ -1,58 +1,45 @@
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.util.List;
-import java.util.Map;
-
 
 public class App {
+
     public static void main(String[] args) throws Exception {
-        String url = "https://raw.githubusercontent.com/alura-cursos/imersao-java-2-api/main/TopMovies.json";
-        URI endereco = URI.create(url);
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder(endereco).GET().build();
 
-        HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-        String body = response.body();
+        API api = API.IMDB_TOP_SERIES;
 
-        //Necessário procurar um parseador de JSON em Java, caso não queira ou possa usar regex
+        String url = api.getUrl();
+        ExtratorDeConteudo extrator = api.getExtrator();
 
-        JsonParser jsonParser = new JsonParser();
-        List<Map<String, String>> listaDeFilmes = jsonParser.parse(body);
+        var http = new ClienteHttp();
+        String json = http.buscaDados(url);
 
+        // exibir e manipular os dados 
+        List<Conteudo> conteudos = extrator.extraiConteudos(json);
 
         var geradora = new GeradordeStickers();
 
-        for (Map<String,String> filme : listaDeFilmes) {
+        for (int i = 0; i < 3; i++) {
 
-            Double rating = Double.parseDouble(filme.get("imDbRating")); 
-            int numeroEstrelas = rating.intValue();
+            Conteudo conteudo = conteudos.get(i);
 
-            String titulo = filme.get("title");
-            String urlImage = filme.get("image");
-
-            InputStream inputStream = new URL(urlImage).openStream();
-            String nomeArquivo = titulo + ".png";
-            // System.out.println("{" + "\u001b[37m \u001b[44m Rank:  " + filme.get("rank")  + "\u001b[m" + '\n' 
-            //     + "\u001b[1m Title: \u001b[m" + filme.get("title") + '\n'
-            //     + "\u001b[1m Rating:\u001b[m" + filme.get("imDbRating") + '\n'
-            //     + "\u001b[1m Image: \u001b[m" + filme.get("image"));
+            InputStream inputStream = new URL(conteudo.urlImagem()).openStream();
+            String nomeArquivo = "saida/" + conteudo.titulo() + ".png";
 
             geradora.cria(inputStream, nomeArquivo);
 
-            // for(int i = 1; i <= numeroEstrelas; i++){
-            //     //Digitar chcp65001 resolveu o problema das estrelas no Windows
-                // System.out.print("⭐");
-            // }
-            System.out.print(filme.get("titulo"));
-            // System.out.print('\n');
-            // System.out.print('\n');
-            
+            System.out.println(conteudo.titulo());
+            System.out.println();
         }
     }
 }
 
+
+//     + "\u001b[1m Image: \u001b[m" + conteudo.get("image"));
+// for(int i = 1; i <= numeroEstrelas; i++){
+    //     //Digitar chcp65001 resolveu o problema das estrelas no Windows
+    //     System.out.print("⭐");
+    // }
+
+    // String url = "https://raw.githubusercontent.com/alura-cursos/imersao-java-2-api/main/TopMovies.json";
+    // String url = "https://api.nasa.gov/planetary/apod?api_key=CyzQCveL75sKaO0hQPj4Ji1qGMeQAamv4gr5zuIC&start_date=2022-06-12&end_date=2022-06-14";

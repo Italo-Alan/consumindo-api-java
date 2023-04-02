@@ -34,7 +34,7 @@ public class GeradordeStickers {
         int larguraTexto = (int) retangulo.getWidth();
         int posicaoTextoX = (width - larguraTexto) / 2;
 
-        graphics.drawString("TOPZERA", posicaoTextoX, newHeight - 85);
+        graphics.drawString("TOPZERA", posicaoTextoX, newHeight - 75);
 
         ImageIO.write(newImage, "png", new File(nomeArquivo));
     }
